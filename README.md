@@ -19,7 +19,3 @@ Você pode personalizar as configurações do DevContainer editando o arquivo `.
 ## Contribuição
 
 Sinta-se à vontade para abrir uma [issue](https://github.com/therenanlira/devcontainer/issues) ou um [pull request](https://github.com/therenanlira/devcontainer/pulls) caso encontre algum problema ou tenha alguma sugestão de melhoria.
-
-## Licença
-
-Este repositório está licenciado sob a licença MIT. Veja o arquivo [LICENSE](./LICENSE) para mais detalhes.

@@ -21,18 +21,16 @@ if [ $SHELL != "/bin/bash" ]; then
 fi
 
 ## Configure bashrc / bash_profile
-mkdir ~/github &>/dev/null
-PROFILE=$(find ~/github/ -name "*bash_profile*" | awk '{ print $NF }')
-if [ -f $PROFILE ]; then
-    if [ ! -e "$HOME/.bash_profile" ]; then
-        ln -s $PROFILE ~/.bash_profile
-        if [ $OS == "Linux" ]; then
-            if ! grep ". $HOME/.bash_profile"  ~/.bashrc; then
-                echo -e "\n. ~/.bash_profile" >> ~/.bashrc
-            fi
-        fi
-    fi
+if [ $OS == "Linux" ]; then
+    BASHRC="$HOME/.bashrc"
+elif [[ $OS == "Darwin" ]]; then
+    BASHRC="$HOME/.bash_profile"
+    test -x $BASHRC || touch $BASHRC
 fi
+
+EXTRAS=$(find ~/ -name "*bash-extras*" | awk '{ print $NF }')
+BASHEXTRAS="source .bashrc-extras"
+test -f $EXTRAS && grep "$BASHEXTRAS" $BASHRC || echo "$BASHEXTRAS" >> $BASHRC
 
 ## Set installer up
 echo -e "This script needs Homebrew to go on."
@@ -58,17 +56,17 @@ if [ ! -d "$HOME/.bash_it" ]; then
     read -p "Install bash-it now? [y/N] " yn
     case $yn in
         [Yy] )
-            mkdir -p ~/github/therenanlira &>/dev/null
-            git clone --depth=1 https://github.com/Bash-it/bash-it.git ~/.bash_it && printf 'y' | ~/.bash_it/install.sh
-            git clone --depth=1 https://github.com/therenanlira/bash-it-themes.git ~/github/therenanlira/bash-it-themes \
-            | ~/github/therenanlira/bash-it-themes/install.sh
+            git clone --depth=1 https://github.com/Bash-it/bash-it.git ~/.bash_it \
+            && printf 'y' | ~/.bash_it/install.sh
+            git clone --depth=1 https://github.com/therenanlira/bash-it-themes.git ~/.bash-it-themes \
+            && printf 'y' | ~/.bash-it-themes/install.sh
             read -p "Want to change the default theme? [y/N] " yn
             case $yn in
                 [Yy] )
                     echo -e "\n" && ls -l .bash_it/themes/ | awk -F" " '{ print $9 }'
                     read -p "Chose one theme from the list above? [write the theme name] "
-                    sed -i "" "s/export BASH_IT_THEME=.*/\export BASH_IT_THEME=$REPLY/g" ~/.bash_profile
-                    source ~/.bash_profile;;
+                    sed -i "" "s/export BASH_IT_THEME=.*/\export BASH_IT_THEME=$REPLY/g" $BASHRC
+                    source $BASHRC;;
                 [Nn]* ) echo -e "Keeping default theme\n";;
             esac;;
         [Nn]* ) ;;

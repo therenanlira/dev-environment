@@ -16,6 +16,8 @@ Este repositório contém um exemplo de como configurar um ambiente de desenvolv
 
 Você pode personalizar as configurações do DevContainer editando o arquivo `.devcontainer/devcontainer.json`. Você pode encontrar mais informações sobre as configurações disponíveis na [documentação oficial](https://code.visualstudio.com/docs/remote/create-dev-container).
 
+O script ````install-packages.sh```` é uma opção para instalar pacotes utilizando o [Homebrew](https://github.com/Homebrew/brew)
+
 ## Contribuição
 
 Sinta-se à vontade para abrir uma [issue](https://github.com/therenanlira/devcontainer/issues) ou um [pull request](https://github.com/therenanlira/devcontainer/pulls) caso encontre algum problema ou tenha alguma sugestão de melhoria.

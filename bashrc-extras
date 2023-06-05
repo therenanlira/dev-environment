@@ -22,12 +22,6 @@ complete -F __start_kubectl k
 alias k=kubectl kx=kubectx kn=kubens
 alias kunset="kubectl config unset current-context; kubectl config unset current-context &>/dev/null"
 
-# Functions
-findhere() { find . -name "*$1*"; }
-opensslcert() { openssl s_client -showcerts -connect $1:443; }
-curlcert() { curl $1 -vI --stderr -; }
-kexec() { kubectl exec -it $1 -- sh -c "clear; (bash || ash || sh)"; }
-
 # Python
 alias py=python3
 if [ -f "/usr/local/bin/virtualenvwrapper.sh" ]; then
@@ -36,3 +30,9 @@ if [ -f "/usr/local/bin/virtualenvwrapper.sh" ]; then
   export VIRTUALENVWRAPPER_VIRRTUALENV=/usr/local/bin/virtualenv
   source /usr/local/bin/virtualenvwrapper.sh
 fi
+
+# Functions
+findhere() { find . -name "*$1*"; }
+opensslcert() { openssl s_client -showcerts -connect $1:443; }
+curlcert() { curl $1 -vI --stderr -; }
+kexec() { kubectl exec -it $1 -- sh -c "clear; (bash || ash || sh)"; }

@@ -1,5 +1,4 @@
 on run argv
-	set email to item 1 of argv
 	set senha to item 2 of argv
 	set code to item 3 of argv
 	
@@ -12,10 +11,6 @@ on run argv
 			click menu bar item 1 of menu bar 2
 			delay 12
 			
-			-- Insere o email
-			keystroke "" & email
-			keystroke return
-			delay 1
 			-- Insere a senha
 			keystroke "" & senha
 			keystroke return

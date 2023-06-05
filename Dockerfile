@@ -5,12 +5,12 @@ ENV PYTHONPATH="/usr/local/lib/python3-*/site-packages"
 ENV PS1="\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\] \w\[\033[00m\]\\n$ \[\]"
 
 # Create user coder
+COPY bashrc-extras /home/coder/.bashrc-extras
 RUN apk add sudo
 RUN adduser -D coder
 RUN echo "coder:Docker!" | chpasswd
 RUN echo "coder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 RUN echo "source .bashrc-extras" >> /home/coder/.bashrc
-COPY bashrc-extras /home/coder/.bashrc-extras
 RUN chown -R coder: /home/coder/
 
 # Install dependencies

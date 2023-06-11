@@ -30,7 +30,7 @@ fi
 
 EXTRAS=$(find ~/ -name "*bash-extras*" | awk '{ print $NF }')
 BASHEXTRAS="source .bashrc-extras"
-test -f $EXTRAS && grep "$BASHEXTRAS" $BASHRC || echo "$BASHEXTRAS" >> $BASHRC
+test -f $EXTRAS && grep "$BASHEXTRAS" $BASHRC || echo "$BASHEXTRAS" >> "\n# Load custom configs\n$BASHRC"
 
 ## Set installer up
 echo -e "This script needs Homebrew to go on."
@@ -229,7 +229,7 @@ fi
 
 read -p "Install Azure CLI? [y/N] " yn
 case $yn in
-    [Yy] ) pipx install azure-cli==2.40.0;;
+    [Yy] ) brew install azure-cli;;
     [Nn]* ) ;;
 esac
 

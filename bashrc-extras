@@ -36,3 +36,6 @@ findhere() { find . -name "*$1*"; }
 opensslcert() { openssl s_client -showcerts -connect $1:443; }
 curlcert() { curl $1 -vI --stderr -; }
 kexec() { kubectl exec -it $1 -- sh -c "clear; (bash || ash || sh)"; }
+extractkey() { openssl pkcs12 -in $1 -nocerts -out "new.key" && openssl rsa -in "new.key" -out "private.key"; }
+extractpublic() { openssl pkcs12 -in $1 -clcerts -nokeys -out "public.crt"; }
+extractca() { openssl pkcs12 -in $1 -cacerts -nokeys -chain -out "ca.crt"; }

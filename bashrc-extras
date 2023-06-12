@@ -1,5 +1,5 @@
 # Update AKS context
-connectAKS="$HOME/.connect-aks-squad.sh"
+connectAKS="$HOME/github/viavarejo-internal/sre-b2b-utils/connect-aks.sh"
 test -x $connectAKS && $connectAKS
 alias updateAKS='$connectAKS'
 alias updateAKSforce='rm $HOME/.kube/azure/.lastupdate && updateAKS'

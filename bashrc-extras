@@ -39,3 +39,4 @@ kexec() { kubectl exec -it $1 -- sh -c "clear; (bash || ash || sh)"; }
 extractkey() { openssl pkcs12 -in $1 -nocerts -out "new.key" && openssl rsa -in "new.key" -out "private.key"; }
 extractpublic() { openssl pkcs12 -in $1 -clcerts -nokeys -out "public.crt"; }
 extractca() { openssl pkcs12 -in $1 -cacerts -nokeys -chain -out "ca.crt"; }
+oclogin() { oc login --server="https://api.ops-eqx.viavarejo.com.br:6443" --insecure-skip-tls-verify --username=4905052840 --password="$1"; }

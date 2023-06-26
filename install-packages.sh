@@ -239,6 +239,7 @@ case $yn in
         $INSTALL kubectl; $INSTALL kubectx
         $INSTALL fzf ## kubectx and kubens with interactive mode
         $INSTALL k9s
+        $INSTALL kubent
         $INSTALL bash-completion
         kubectl completion bash > $(brew --prefix)/etc/bash_completion.d/kubectl
         $INSTALL helmbrew tap robscott/tap; $INSTALL robscott/tap/kube-capacity
@@ -252,7 +253,10 @@ case $yn in
             ./"${KREW}" install krew
         )
         kubectl krew install neat
-        brew tap oleewere/repo; $INSTALL cmctl; $INSTALL cfssl;;
+        brew tap oleewere/repo; $INSTALL cmctl; $INSTALL cfssl
+        curl -LO https://github.com/kvaps/kubectl-node-shell/raw/master/kubectl-node_shell
+        chmod +x ./kubectl-node_shell
+        sudo mv ./kubectl-node_shell /usr/local/bin/kubectl-node_shell;;
     [Nn]* ) ;;
 esac
 

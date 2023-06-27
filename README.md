@@ -18,6 +18,11 @@ Você pode personalizar as configurações do DevContainer editando o arquivo `.
 
 O script ````install-packages.sh```` é uma opção para instalar pacotes utilizando o [Homebrew](https://github.com/Homebrew/brew)
 
+## Scripts de instalação
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/therenanlira/devcontainer/main/install-packages-alpine.sh | sh```
+
 ## Contribuição
 
 Sinta-se à vontade para abrir uma [issue](https://github.com/therenanlira/devcontainer/issues) ou um [pull request](https://github.com/therenanlira/devcontainer/pulls) caso encontre algum problema ou tenha alguma sugestão de melhoria.

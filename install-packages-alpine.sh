@@ -8,11 +8,18 @@ adduser -D coder
 echo "coder:Docker!" | chpasswd
 echo "coder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 chown -R coder: /home/coder/
-SHELL="/bin/bash" >> /home/coder/.bashrc
-PYTHONPATH="/usr/local/lib/python3-*/site-packages" >> /home/coder/.bashrc
-PS1="\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\] \w\[\033[00m\]\\n$ \[\]" >> /home/coder/.bashrc
+
+# Configure 
+echo -e \
+'SHELL="/bin/bash"
+PYTHONPATH="/usr/local/lib/python3-*/site-packages"
+PS1="\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\] \w\[\033[00m\]\\n$ \[\]"
 
 # Functions
 findhere() { find . -name "*$1*"; }
 opensslcert() { openssl s_client -showcerts -connect $1:443; }
 curlcert() { curl $1 -vI --stderr -; }
+
+# Alias
+alias ll="ls -la"
+' >> /home/coder/.bashrc

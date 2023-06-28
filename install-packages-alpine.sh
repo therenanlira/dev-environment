@@ -4,9 +4,9 @@
 apk add sudo curl wget vim bash git
 
 # Install and configure bash
-SHELL="/bin/bash"
-PYTHONPATH="/usr/local/lib/python3-*/site-packages"
-PS1="\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\] \w\[\033[00m\]\\n$ \[\]"
+export SHELL="/bin/bash"
+export PYTHONPATH="/usr/local/lib/python3-*/site-packages"
+export PS1="\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\] \w\[\033[00m\]\\n$ \[\]"
 
 # Install sudo and configure user coder
 adduser -D coder

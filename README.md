@@ -21,7 +21,8 @@ O script ````install-packages.sh```` é uma opção para instalar pacotes utiliz
 ## Scripts de instalação
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/therenanlira/devcontainer/main/install-packages-alpine.sh | sh```
+curl -fsSL https://raw.githubusercontent.com/therenanlira/devcontainer/main/install-packages-alpine.sh | sh
+```
 
 ## Contribuição
 

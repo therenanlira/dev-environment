@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Install basic packages
-apk add sudo curl wget vim bash git
+apk update
+apk add --no-cache sudo curl wget vim bash git
 
 # Install sudo and configure user coder
 adduser -D coder

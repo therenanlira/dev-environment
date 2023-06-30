@@ -23,4 +23,4 @@ curlcert() { curl $1 -vI --stderr -; }
 
 # Alias
 alias ll="ls -la"
-' >> /home/coder/.bashrc
+' >> /home/coder/.profile

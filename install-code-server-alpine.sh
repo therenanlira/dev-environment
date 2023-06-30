@@ -4,7 +4,7 @@
 apk update
 apk upgrade
 # apk add nodejs npm --repository http://dl-cdn.alpinelinux.org/alpine/v3.16/main
-apk add alpine-sdk gcompat libstdc++ libc6-compat build-base bash python3 nodejs-current npm
+apk add alpine-sdk gcompat libstdc++ libc6-compat build-base bash python3 nodejs-current npm yarn
 npm config set python python3
 npm install --global code-server --unsafe-perm
 

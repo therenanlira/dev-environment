@@ -18,9 +18,10 @@ command -v brew >/dev/null 2>&1 && export HOMEBREW_EDITOR=vim
 # Kubernetes cheats
 export PATH="$PATH:${HOME}/.local/bin:${HOME}/.krew/bin"
 export KUBECONFIG=$HOME/.kube/config:$HOME/.kube/azure/config
-complete -F __start_kubectl k
 alias k=kubectl kx=kubectx kn=kubens
 alias kunset="kubectl config unset current-context; kubectl config unset current-context &>/dev/null"
+complete -o default -F __start_kubectl k
+source <(kubectl completion bash)
 
 # Python
 alias py=python3
@@ -39,4 +40,4 @@ kexec() { kubectl exec -it $1 -- sh -c "clear; (bash || ash || sh)"; }
 extractkey() { openssl pkcs12 -in $1 -nocerts -out "new.key" && openssl rsa -in "new.key" -out "private.key"; }
 extractpublic() { openssl pkcs12 -in $1 -clcerts -nokeys -out "public.crt"; }
 extractca() { openssl pkcs12 -in $1 -cacerts -nokeys -chain -out "ca.crt"; }
-oclogin() { oc login --server="https://api.ops-eqx.viavarejo.com.br:6443" --insecure-skip-tls-verify --username=4905052840 --password="$1"; }
+oclogin() { oc login --server=https://api.ops-eqx.viavarejo.com.br:6443 --insecure-skip-tls-verify --username=4905052840 --password=$1; }

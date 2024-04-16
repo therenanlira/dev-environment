@@ -1,9 +1,3 @@
-# Update AKS context
-connectAKS="$HOME/github/viavarejo-internal/sre-b2b-utils/connect-aks.sh"
-test -x $connectAKS && $connectAKS
-alias updateAKS='$connectAKS'
-alias updateAKSforce='rm $HOME/.kube/azure/.lastupdate && updateAKS'
-
 # Homebrew settings
 if [ $(uname -s) == "Darwin" ]; then
   BREWDIR="/opt/homebrew/bin/brew"
@@ -31,6 +25,18 @@ if [ -f "/usr/local/bin/virtualenvwrapper.sh" ]; then
   export VIRTUALENVWRAPPER_VIRRTUALENV=/usr/local/bin/virtualenv
   source /usr/local/bin/virtualenvwrapper.sh
 fi
+
+# Terraform alias
+alias tf="terraform"
+alias tfp="terraform plan -out=plan.tfplan --parallelism 2000"
+alias tfa="terraform apply 'plan.tfplan'"
+alias tfi="terraform init && terraform get -update"
+alias tfw="terraform workspace"
+alias tfwl="terraform workspace list"
+alias tfws="terraform workspace select"
+alias tfs="terraform state"
+alias tfv="terraform validate"
+alias tfip="tfi && tfp"
 
 # Functions
 findhere() { find . -name "*$1*"; }

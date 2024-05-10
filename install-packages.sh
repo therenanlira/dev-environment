@@ -227,9 +227,21 @@ if [[ $OS == "Linux" || $DISTRO != "rhel" ]]; then
     esac
 fi
 
+read -p "Install AWS CLI? [y/N] " yn
+case $yn in
+    [Yy] ) brew install awscli;;
+    [Nn]* ) ;;
+esac
+
 read -p "Install Azure CLI? [y/N] " yn
 case $yn in
     [Yy] ) brew install azure-cli;;
+    [Nn]* ) ;;
+esac
+
+read -p "Install Terraform? [y/N] " yn
+case $yn in
+    [Yy] ) brew install terraform;;
     [Nn]* ) ;;
 esac
 

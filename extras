@@ -38,6 +38,10 @@ alias tfs="terraform state"
 alias tfv="terraform validate"
 alias tfip="tfi && tfp"
 
+# OpenVPN
+alias ovpn-c="openvpn3 session-start --config ~/.client.ovpn"
+alias ovpn-d="openvpn3 session-manage --config ~/.client.ovpn --disconnect"
+
 # Functions
 findhere() { find . -name "*$1*"; }
 opensslcert() { openssl s_client -showcerts -connect $1:443; }

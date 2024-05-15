@@ -38,6 +38,15 @@ alias tfs="terraform state"
 alias tfv="terraform validate"
 alias tfip="tfi && tfp"
 
+# AWS alias
+AWS_PROFILE_DEV=$(aws configure list-profiles | grep "dev" | head -1 )
+test $AWS_PROFILE_DEV && export AWS_DEFAULT_PROFILE=$AWS_PROFILE_DEV
+
+for profile in $(aws configure list-profiles); do
+  alias aws-$profile="aws --profile $profile"
+  alias aws-set-$profile="export AWS_DEFAULT_PROFILE=$profile"
+done
+
 # OpenVPN
 alias ovpn-c="openvpn3 session-start --config ~/.client.ovpn"
 alias ovpn-d="openvpn3 session-manage --config ~/.client.ovpn --disconnect"

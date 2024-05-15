@@ -45,6 +45,7 @@ test $AWS_PROFILE_DEV && export AWS_DEFAULT_PROFILE=$AWS_PROFILE_DEV
 for profile in $(aws configure list-profiles); do
   alias aws-$profile="aws --profile $profile"
   alias aws-set-$profile="export AWS_DEFAULT_PROFILE=$profile"
+  alias e1s-$profile="e1s --profile=$profile"
 done
 
 # OpenVPN

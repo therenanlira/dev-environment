@@ -28,9 +28,11 @@ elif [[ $OS == "Darwin" ]]; then
     test -x $BASHRC || touch $BASHRC
 fi
 
-EXTRAS=$(find ~/ -name "*bash-extras*" | awk '{ print $NF }')
-BASHEXTRAS="source .bashrc-extras"
-test -f $EXTRAS && grep "$BASHEXTRAS" $BASHRC || echo "$BASHEXTRAS" >> "\n# Load custom configs\n$BASHRC"
+EXTRAS=$HOME/.extras
+test -f $EXTRAS && echo -e "# Load extras\ntest -f $EXTRAS && source $EXTRAS\n"
+
+AWSMFA=$HOME/.aws-mfa
+test -f $AWSMFA && echo -e "# Load aws-mfa\ntest -f $AWSMFA && source $EXTRAS\n"
 
 ## Set installer up
 echo -e "This script needs Homebrew to go on."

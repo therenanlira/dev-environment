@@ -1,7 +1,7 @@
 # Homebrew settings
 if [ $(uname -s) == "Darwin" ]; then
   BREWDIR="/opt/homebrew/bin/brew"
-  test -x $BREWDIR && eval "$($BREWDIR shellenv)" 
+  test -x $BREWDIR && eval "$($BREWDIR shellenv)"
 elif [ $(uname -s) == "Linux" ]; then
   BREWDIR="/home/linuxbrew/.linuxbrew/bin/brew"
   test -x $BREWDIR && eval "$($BREWDIR shellenv)"
@@ -41,6 +41,7 @@ alias tfip="tfi && tfp"
 # AWS alias
 AWS_PROFILE_DEV=$(aws configure list-profiles | grep "dev" | head -1 )
 test $AWS_PROFILE_DEV && export AWS_DEFAULT_PROFILE=$AWS_PROFILE_DEV
+test $AWS_PROFILE_DEV && export AWS_PROFILE=$AWS_PROFILE_DEV
 
 for profile in $(aws configure list-profiles); do
   alias aws-$profile="aws --profile $profile"

@@ -106,13 +106,13 @@ chmod +x ./kubectl-node_shell
 sudo mv ./kubectl-node_shell /usr/local/bin/kubectl-node_shell
 
 ### Install CMCTL and CFSSL
-if [ $OS == "Darwin" ]; then
+if [ $OS == "Linux" ]; then
+    CMCTL_VERSION=0.5.0
+    curl -L -s "https://github.com/oleewere/cmctl/releases/download/v${CMCTL_VERSION}/cmctl_${CMCTL_VERSION}_linux_64-bit.tar.gz" | tar -C /usr/bin -xzv cmctl
+elif [ $OS == "Darwin" ]; then
     brew tap oleewere/repo
     $INSTALL cmctl
     $INSTALL cfssl
-elif [ $OS == "Linux" ]; then
-    CMCTL_VERSION=0.5.0
-    curl -L -s "https://github.com/oleewere/cmctl/releases/download/v${CMCTL_VERSION}/cmctl_${CMCTL_VERSION}_linux_64-bit.tar.gz" | tar -C /usr/bin -xzv cmctl
 fi
 
 ## Install e1s

@@ -45,7 +45,7 @@ test -f $HOME/.vimrc && rm $HOME/.vimrc
 test ! -f $HOME/.vimrc && echo -e 'set ic\nset nu\nset cul\nset cuc\nset bg=dark' >> $HOME/.vimrc
 
 ## Install network tools
-$INSTALL net-tools watch whois nmap
+$INSTALL watch whois nmap
 
 ## Extras Bash configurations
 rm $HOME/.extras &>/dev/null \
@@ -68,7 +68,7 @@ sed -i "" "s/export BASH_IT_THEME=.*/\export BASH_IT_THEME=new-sushu/g" $BASHFIL
 source $BASHFILE
 
 ## Install programming languages
-$INSTALL nodejs npm python3 pipx python3-pip golang
+$INSTALL nodejs npm python3 pipx golang
 
 ## Install X Code
 test $OS == "Darwin" && xcode-select --install
@@ -77,7 +77,7 @@ test $OS == "Darwin" && xcode-select --install
 npm install -g tldr
 
 ## Install Cloud tools
-$INSTALL awscli azure-cli gcloud terraform
+$INSTALL awscli azure-cli terraform
 
 ## Install Kubernetes tools
 $INSTALL kubectl kubectx k9s kubent bash-completion fzf helm k9s

@@ -47,11 +47,6 @@ test ! -f $HOME/.vimrc && echo -e 'set ic\nset nu\nset cul\nset cuc\nset bg=dark
 ## Install network tools
 $INSTALL watch whois nmap
 
-## Extras Bash configurations
-rm $HOME/.extras &>/dev/null \
-&& curl -o $HOME/.extras https://raw.githubusercontent.com/therenanlira/devcontainer/main/extras \
-&& echo -e "# Load extras\ntest -f $EXTRAS && source $EXTRAS\n" >> $BASHFILE
-
 ## Configure git
 echo -e "\n\n\n########## Configuring git... ##########\n\n\n"
 read -p "Your name: " name
@@ -66,6 +61,11 @@ git clone --depth=1 https://github.com/therenanlira/bash-it-themes.git ~/.bash-i
 && printf 'y' | ~/.bash-it-themes/install.sh
 sed -i "" "s/export BASH_IT_THEME=.*/\export BASH_IT_THEME=new-sushu/g" $BASHFILE
 source $BASHFILE
+
+## Extras Bash configurations
+rm $HOME/.extras &>/dev/null \
+&& curl -o $HOME/.extras https://raw.githubusercontent.com/therenanlira/dev-environment/main/extras \
+&& echo -e "\n# Load extras\ntest -f \$HOME/.extras && source \$HOME/.extras" >> $BASHFILE
 
 ## Install programming languages
 $INSTALL nodejs npm python3 pipx golang

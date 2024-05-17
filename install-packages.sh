@@ -1,327 +1,163 @@
-#!bin/bash
-
+## Variables
 OS=$(uname -s)
 DISTRO=$(test -f /etc/os-release && grep "ID_LIKE" /etc/os-release | awk -F= '{ print $2 }')
-INSTALL="brew install"
 
+## Functions
 function install_homebrew() {
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     eval "$(/opt/homebrew/bin/brew shellenv)"
 }
 
-function install_node() {
-    $INSTALL node
-    $INSTALL npm
-}
-
-## Configure bash and set as default
-if [ $SHELL != "/bin/bash" ]; then
-    chsh -s /bin/bash
-    bash
+## Check if OS is Linux or Darwin
+if [ $OS != "Linux" ] && [ $OS != "Darwin" ]; then
+    echo "This script is not supported for your OS"
+    exit 1
 fi
 
-## Configure bashrc / bash_profile
+## Set Bash as default shell
+chsh -s /bin/bash $USER &>/dev/null
+test -z $OS == "Linux" && BASHFILE=$HOME/.bashrc || BASHFILE=$HOME/.bash_profile
+
+## Update and install basic packages
 if [ $OS == "Linux" ]; then
-    BASHRC="$HOME/.bashrc"
-elif [[ $OS == "Darwin" ]]; then
-    BASHRC="$HOME/.bash_profile"
-    test -x $BASHRC || touch $BASHRC
+    if [ $DISTRO == "debian" ]; then
+        sudo apt update
+        INSTALL="sudo apt install -y"
+    elif [ $DISTRO == "rhel" ]; then
+        sudo dnf update
+        INSTALL="sudo dnf install -y"
+    fi
+elif [ $OS == "Darwin" ]; then
+        install_homebrew
+        INSTALL="brew install"
 fi
 
-EXTRAS=$HOME/.extras
-test -f $EXTRAS && echo -e "# Load extras\ntest -f $EXTRAS && source $EXTRAS\n"
+## Install initial packages
+$INSTALL neofetch figlet ed jq wget curl git
 
-AWSMFA=$HOME/.aws-mfa
-test -f $AWSMFA && echo -e "# Load aws-mfa\ntest -f $AWSMFA && source $EXTRAS\n"
+## Configure vim
+$INSTALL vim
+test -f $HOME/.vimrc && rm $HOME/.vimrc
+test ! -f $HOME/.vimrc && echo -e 'set ic\nset nu\nset cul\nset cuc\nset bg=dark' >> $HOME/.vimrc
 
-## Set installer up
-echo -e "This script needs Homebrew to go on."
-read -p "Install Homebrew? [y/N] " yn
-case $yn in
-    [Yy] ) 
-        if [[ $OS == "Linux" || $DISTRO == "debian" ]]; then
-            sudo apt-get update
-            sudo apt-get install curl git-all -y
-            install_homebrew
-        elif [[ $OS == "Linux" || $DISTRO == "rhel" ]]; then
-            sudo dnf update
-            sudo dnf install curl git-all -y
-            install_homebrew
-        elif [[ $OS == "Darwin" ]]; then
-            install_homebrew
-            $INSTALL git
-        fi;;
-    [Nn]* ) exit;;
-esac
-
-if [ ! -d "$HOME/.bash_it" ]; then
-    read -p "Install bash-it now? [y/N] " yn
-    case $yn in
-        [Yy] )
-            git clone --depth=1 https://github.com/Bash-it/bash-it.git ~/.bash_it \
-            && printf 'y' | ~/.bash_it/install.sh
-            git clone --depth=1 https://github.com/therenanlira/bash-it-themes.git ~/.bash-it-themes \
-            && printf 'y' | ~/.bash-it-themes/install.sh
-            read -p "Want to change the default theme? [y/N] " yn
-            case $yn in
-                [Yy] )
-                    echo -e "\n" && ls -l .bash_it/themes/ | awk -F" " '{ print $9 }'
-                    read -p "Chose one theme from the list above? [write the theme name] "
-                    sed -i "" "s/export BASH_IT_THEME=.*/\export BASH_IT_THEME=$REPLY/g" $BASHRC
-                    source $BASHRC;;
-                [Nn]* ) echo -e "Keeping default theme\n";;
-            esac;;
-        [Nn]* ) ;;
-    esac
+## Install network tools
+$INSTALL net-tools watch whois nmap
+if [ $OS == "Linux" ]; then
+    $INSTALL iproute2 iputils-ping gawk
+elif [ $OS == "Darwin" ]; then
+    $INSTALL iproute2mac iputils net-tools
 fi
 
-## Basic and useless
-read -p "Install neofetch? [y/N] " yn
-case $yn in
-    [Yy] ) $INSTALL neofetch;;
-    [Nn]* ) ;;
-esac
+## Extras Bash configurations
+rm $HOME/.extras &>/dev/null \
+&& curl -o $HOME/.extras https://raw.githubusercontent.com/therenanlira/devcontainer/main/extras \
+&& echo -e "# Load extras\ntest -f $EXTRAS && source $EXTRAS\n" >> $BASHFILE
 
-read -p "Install figlet? [y/N] " yn
-case $yn in
-    [Yy] ) $INSTALL figlet;;
-    [Nn]* ) ;;
-esac
+## Configure git
+echo "\n\n\n########## Configuring git... ##########"
+read -p "Your name: " name
+read -p "Your GitHub email: " email
+git config --global user.name $name
+git config --global user.email $email 
 
-## Text manipulation
-read -p "Install vim? [y/N] " yn
-case $yn in
-    [Yy] )
-        $INSTALL vim
-        if [ -f $HOME/.vimrc ]; then
-            rm ~/.vimrc.old &>/dev/null
-            mv ~/.vimrc ~/.vimrc.old &>/dev/null
-        fi
-        echo -e 'set ic\nset nu\nset cul\nset cuc\nset bg=dark' >> ~/.vimrc;;
-    [Nn]* ) ;;
-esac
+## Install and configure bash-it and themes
+git clone --depth=1 https://github.com/Bash-it/bash-it.git ~/.bash_it \
+&& printf 'y' | ~/.bash_it/install.sh
+git clone --depth=1 https://github.com/therenanlira/bash-it-themes.git ~/.bash-it-themes \
+&& printf 'y' | ~/.bash-it-themes/install.sh
+sed -i "" "s/export BASH_IT_THEME=.*/\export BASH_IT_THEME=new-sushu/g" $BASHFILE
+source $BASHFILE
 
-read -p "Install ed? [y/N] " yn
-case $yn in
-    [Yy] ) $INSTALL ed;;
-    [Nn]* ) ;;
-esac
+## Install programming languages
+$INSTALL nodejs npm python3 pipx python3-pip golang
 
-read -p "Install awk? [y/N] " yn
-case $yn in
-    [Yy] ) $INSTALL awk;;
-    [Nn]* ) ;;
-esac
+## Install X Code
+test $OS == "Darwin" && xcode-select --install
 
-read -p "Install jq? [y/N] " yn
-case $yn in
-    [Yy] ) $INSTALL jq;;
-    [Nn]* ) ;;
-esac
+## Install TLDR
+npm install -g tldr
 
-read -p "Install tldr? [y/N] " yn
-case $yn in
-    [Yy] ) 
-        install_node
-        npm install -g tldr;;
-    [Nn]* ) ;;
-esac
+## Install Cloud tools
+$INSTALL awscli azure-cli gcloud terraform
 
-## Packages and network
-read -p "Install watch? [y/N] " yn
-case $yn in
-    [Yy] ) $INSTALL watch;;
-    [Nn]* ) ;;
-esac
+## Install Kubernetes tools
+$INSTALL kubectl kubectx k9s kubent bash-completion fzf helm k9s
+kubectl completion bash > $(brew --prefix)/etc/bash_completion.d/kubectl
 
-read -p "Install whois? [y/N] " yn
-case $yn in
-    [Yy] ) $INSTALL whois;;
-    [Nn]* ) ;;
-esac
+### Install krew
+(
+  set -x; cd "$(mktemp -d)" &&
+  OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
+  ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" &&
+  KREW="krew-${OS}_${ARCH}" &&
+  curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" &&
+  tar zxvf "${KREW}.tar.gz" &&
+  ./"${KREW}" install krew
+)
 
-read -p "Install nmap? [y/N] " yn
-case $yn in
-    [Yy] ) $INSTALL nmap;;
-    [Nn]* ) ;;
-esac
+### Install kubectl-node-shell
+kubectl krew install neat
+curl -LO https://github.com/kvaps/kubectl-node-shell/raw/master/kubectl-node_shell
+chmod +x ./kubectl-node_shell
+sudo mv ./kubectl-node_shell /usr/local/bin/kubectl-node_shell
 
-## ISO manipulation
-read -p "Install BalenaEtcher? [y/N] " yn
-case $yn in
-    [Yy] ) $INSTALL --cask balenaetcher;;
-    [Nn]* ) ;;
-esac
-
-## Browsers
-read -p "Install Firefox? [y/N] " yn
-case $yn in
-    [Yy] ) $INSTALL --cask firefox;;
-    [Nn]* ) ;;
-esac
-
-read -p "Install Microsoft Edge? [y/N] " yn
-case $yn in
-    [Yy] ) $INSTALL --cask microsoft-edge;;
-    [Nn]* ) ;;
-esac
-
-## Developing
-if [[ $OS == "Darwin" ]]; then
-    read -p "Install XCode? [y/N] " yn
-    case $yn in
-        [Yy] ) xcode-select --install;;
-        [Nn]* ) ;;
-    esac
+### Install CMCTL and CFSSL
+if [ $OS == "Darwin" ]; then
+    brew tap oleewere/repo
+    $INSTALL cmctl
+    $INSTALL cfssl
+elif [ $OS == "Linux" ]; then
+    CMCTL_VERSION=0.5.0
+    curl -L -s "https://github.com/oleewere/cmctl/releases/download/v${CMCTL_VERSION}/cmctl_${CMCTL_VERSION}_linux_64-bit.tar.gz" | tar -C /usr/bin -xzv cmctl
 fi
 
-read -p "Install Gitmoji? Needs NodeJS. [y/N] " yn
-case $yn in
-    [Yy] ) 
-        install_node
-        npm i -g gitmoji-cli;;
-    [Nn]* ) ;;
-esac
+## Install e1s
+E1S_VERSION=1.0.34
+E1S_URL="https://github.com/keidarcy/e1s/releases/download/v$E1S_VERSION/e1s_$E1S_VERSION_$E1S_OS.tar.gz"
 
-read -p "Install NodeJS? [y/N] " yn
-case $yn in
-    [Yy] ) install_node;;
-    [Nn]* ) ;;
-esac
+if [ $OS == "Linux" ]; then
+    E1S_OS="linux_amd64"
+elif [ $OS == "Darwin" ]; then
+    E1S_OS="darwin_all"
+fi
 
-read -p "Install Python3? [y/N] " yn
-case $yn in
-    [Yy] ) 
-        $INSTALL python3
-        $INSTALL pipx;;
-    [Nn]* ) ;;
-esac
+if [ $OS == "Linux" ]; then
+    curl -L -s $E1S_URL | tar -C /usr/bin -xzv e1s
+elif [ $OS == "Darwin" ]; then
+    curl -L -s $E1S_URL | tar -C /usr/local/bin -xzv e1s
+fi
 
-read -p "Install Go? [y/N] " yn
-case $yn in
-    [Yy] ) $INSTALL go;;
-    [Nn]* ) ;;
-esac
-
+## Install Docker
 read -p "Install Docker? [y/N] " yn
 case $yn in
-    [Yy] ) $INSTALL --cask docker;;
+    [Yy] )
+            if [ $OS == "Linux" ]; then
+                $INSTALL docker.io
+                sudo systemctl enable docker
+                sudo systemctl start docker
+            elif [ $OS == "Darwin" ]; then
+                $INSTALL docker
+                $INSTALL --cask docker
+            fi;;
     [Nn]* ) ;;
 esac
 
-read -p "Install VSCode? [y/N] " yn
-case $yn in
-    [Yy] ) $INSTALL --cask visual-studio-code;;
-    [Nn]* ) ;;
-esac
-
-read -p "Install Postman? [y/N] " yn
-case $yn in
-    [Yy] ) $INSTALL postman;;
-    [Nn]* ) ;;
-esac
-
-if [[ $OS == "Linux" || $DISTRO != "rhel" ]]; then
-    read -p "Install TablePlus? [y/N] " yn
-    case $yn in
-        [Yy] ) $INSTALL --cask tableplus;;
-        [Nn]* ) ;;
-    esac
-fi
-
-read -p "Install AWS CLI? [y/N] " yn
-case $yn in
-    [Yy] ) brew install awscli;;
-    [Nn]* ) ;;
-esac
-
-read -p "Install Azure CLI? [y/N] " yn
-case $yn in
-    [Yy] ) brew install azure-cli;;
-    [Nn]* ) ;;
-esac
-
-read -p "Install Terraform? [y/N] " yn
-case $yn in
-    [Yy] ) brew install terraform;;
-    [Nn]* ) ;;
-esac
-
-read -p "Install Kubernetes tools? [y/N] " yn
+## Install VS Code
+read -p "Install Visual Studio Code? [y/N] " yn
 case $yn in
     [Yy] )
-        $INSTALL kubectl; $INSTALL kubectx
-        $INSTALL fzf ## kubectx and kubens with interactive mode
-        $INSTALL k9s
-        $INSTALL kubent
-        $INSTALL bash-completion
-        kubectl completion bash > $(brew --prefix)/etc/bash_completion.d/kubectl
-        $INSTALL helmbrew tap robscott/tap; $INSTALL robscott/tap/kube-capacity
-        (
-            set -x; cd "$(mktemp -d)" &&
-            OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
-            ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" &&
-            KREW="krew-${OS}_${ARCH}" &&
-            curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" &&
-            tar zxvf "${KREW}.tar.gz" &&
-            ./"${KREW}" install krew
-        )
-        kubectl krew install neat
-        brew tap oleewere/repo; $INSTALL cmctl; $INSTALL cfssl
-        curl -LO https://github.com/kvaps/kubectl-node-shell/raw/master/kubectl-node_shell
-        chmod +x ./kubectl-node_shell
-        sudo mv ./kubectl-node_shell /usr/local/bin/kubectl-node_shell;;
+            if [ $OS == "Linux" ]; then
+                $INSTALL code
+            elif [ $OS == "Darwin" ]; then
+                $INSTALL --cask visual-studio-code
+            fi;;
     [Nn]* ) ;;
 esac
 
-read -p "Install Openshift tools? [y/N] " yn
+## Install Postman
+read -p "Install Postman? [y/N] " yn
 case $yn in
-    [Yy] ) 
-        $INSTALL openshift-cli
-        oc completion bash > $(brew --prefix)/etc/bash_completion.d/oc_bash_completion;;
-    [Nn]* ) ;;
-esac
-
-read -p "Install Lens Spaces? [y/N] " yn
-case $yn in
-    [Yy] ) $INSTALL --cask lens;;
-    [Nn]* ) ;;
-esac
-
-## Virtualization
-read -p "Install Multipass? [y/N] " yn
-case $yn in
-    [Yy] ) $INSTALL multipass;;
-    [Nn]* ) ;;
-esac
-
-if [ $OS == "Darwin" ]; then
-    read -p "Install UTM app [y/N] " yn
-    case $yn in
-        [Yy] ) 
-            if [ -z $(grep 'Patch to correctly select ARM architecture' "/opt/homebrew/Library/Taps/sidneys/homebrew-homebrew/Formula/openssl@1.0.rb") ]; then
-                cp /opt/homebrew/Library/Taps/sidneys/homebrew-homebrew/Formula/openssl@1.0.rb /opt/homebrew/Library/Taps/sidneys/homebrew-homebrew/Formula/openssl@1.0.rb.bkp
-                sed -i '' 's+  version_scheme 1+  version_scheme 1\n\n  # Patch to correctly select ARM architecture\n  patch do\n  url "https://gist.githubusercontent.com/felixbuenemann/5f4dcb30ebb3b86e1302e2ec305bac89/raw/b339a33ff072c9747df21e2558c36634dd62c195/openssl-1.0.2u-darwin-arm64.patch"\n  sha256 "4ad22bcfc85171a25f035b6fc47c7140752b9ed7467bb56081c76a0a3ebf1b9f"\n  end+' /opt/homebrew/Library/Taps/sidneys/homebrew-homebrew/Formula/openssl@1.0.rb
-                sed -i '' 's+    arch_args = \%w\[darwin64-x86_64-cc enable-ec_nistp_64_gcc_128\]+    # arch_args = \%w\[darwin64-x86_64-cc enable-ec_nistp_64_gcc_128\]\n    arch_args = \%W\[darwin64-#\{Hardware::CPU.arch\}-cc enable-ec_nistp_64_gcc_128\]+' /opt/homebrew/Library/Taps/sidneys/homebrew-homebrew/Formula/openssl@1.0.rb
-            fi
-            sudo mkdir /usr/local/opt &>/dev/null
-            sudo ln -s /opt/homebrew/Cellar/openssl\@1.0/1.0.2u /usr/local/opt/openssl
-            brew tap sidneys/homebrew
-            $INSTALL aria2 cabextract wimlib cdrtools sidneys/homebrew/chntpw
-            $INSTALL utm;;
-        [Nn]* ) ;;
-    esac
-fi
-
-## Gaming
-read -p "Install Discord? [y/N] " yn
-case $yn in
-    [Yy] ) $INSTALL discord;;
-    [Nn]* ) ;;
-esac
-
-read -p "Install Steam? [y/N] " yn
-case $yn in
-    [Yy] ) $INSTALL --cask steam;;
+    [Yy] )
+            $INSTALL postman;;
     [Nn]* ) ;;
 esac

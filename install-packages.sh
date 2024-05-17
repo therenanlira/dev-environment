@@ -37,7 +37,7 @@ elif [ $OS == "Darwin" ]; then
 fi
 
 ## Install initial packages
-$INSTALL neofetch figlet ed jq wget curl git
+$INSTALL neofetch figlet ed jq wget curl git gawk
 
 ## Configure vim
 $INSTALL vim
@@ -46,11 +46,6 @@ test ! -f $HOME/.vimrc && echo -e 'set ic\nset nu\nset cul\nset cuc\nset bg=dark
 
 ## Install network tools
 $INSTALL net-tools watch whois nmap
-if [ $OS == "Linux" ]; then
-    $INSTALL iproute2 iputils-ping gawk
-elif [ $OS == "Darwin" ]; then
-    $INSTALL iproute2mac iputils net-tools
-fi
 
 ## Extras Bash configurations
 rm $HOME/.extras &>/dev/null \

@@ -53,7 +53,7 @@ rm $HOME/.extras &>/dev/null \
 && echo -e "# Load extras\ntest -f $EXTRAS && source $EXTRAS\n" >> $BASHFILE
 
 ## Configure git
-echo "\n\n\n########## Configuring git... ##########"
+echo -e "\n\n\n########## Configuring git... ##########\n\n\n"
 read -p "Your name: " name
 read -p "Your GitHub email: " email
 git config --global user.name $name

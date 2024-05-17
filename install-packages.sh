@@ -114,12 +114,7 @@ fi
 ## Install e1s
 E1S_VERSION=1.0.34
 E1S_URL="https://github.com/keidarcy/e1s/releases/download/v$E1S_VERSION/e1s_$E1S_VERSION_$E1S_OS.tar.gz"
-
-if [ $OS == "Linux" ]; then
-    E1S_OS="linux_amd64"
-elif [ $OS == "Darwin" ]; then
-    E1S_OS="darwin_all"
-fi
+test $OS == "Linux" && E1S_OS="linux_amd64" || E1S_OS="darwin_all"
 
 if [ $OS == "Linux" ]; then
     curl -L -s $E1S_URL | tar -C /usr/bin -xzv e1s
@@ -157,7 +152,6 @@ esac
 ## Install Postman
 read -p "Install Postman? [y/N] " yn
 case $yn in
-    [Yy] )
-            $INSTALL postman;;
+    [Yy] )  $INSTALL postman;;
     [Nn]* ) ;;
 esac

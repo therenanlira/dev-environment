@@ -16,7 +16,11 @@ fi
 
 ## Set Bash as default shell
 chsh -s /bin/bash $USER &>/dev/null
-test -z $OS == "Linux" && BASHFILE=$HOME/.bashrc || BASHFILE=$HOME/.bash_profile
+if [ $OS == "Linux" ]; then
+    BASHFILE=$HOME/.bashrc
+elif [ $OS == "Darwin" ]; then
+    BASHFILE=$HOME/.bash_profile
+fi
 
 ## Update and install basic packages
 if [ $OS == "Linux" ]; then

@@ -80,11 +80,15 @@ fi
 
 ## Install FZF
 if [ $OS == "Linux" ]; then
-    $INSTALL fzf
+    git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+    ~/.fzf/install
 elif [ $OS == "Darwin" ]; then
     $INSTALL fzf
     $(brew --prefix)/opt/fzf/install
 fi
+
+source $BASHFILE
+eval "$(fzf --bash)"
 
 ## Install Terraform
 $INSTALL terraform

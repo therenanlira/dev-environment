@@ -199,8 +199,6 @@ elif [ $OS == "Darwin" ]; then
     $INSTALL e1s
 fi
 
-## TODO continue from here
-
 ## Install Docker
 read -p "Install Docker? [y/N] " yn
 case $yn in

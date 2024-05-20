@@ -10,7 +10,7 @@ export HOMEBREW_EDITOR=vim
 
 ## Kubernetes cheats
 export PATH="$PATH:${HOME}/.local/bin:${HOME}/.krew/bin"
-export KUBECONFIG=$HOME/.kube/config:$HOME/.kube/azure/config
+test -f $HOME/.kube/config && test -f $HOME/.kube/azure/config && export KUBECONFIG=$HOME/.kube/config:$HOME/.kube/azure/config
 alias k=kubectl kx=kubectx kn=kubens
 alias kunset="kubectl config unset current-context; kubectl config unset current-context &>/dev/null"
 complete -o default -F __start_kubectl k
@@ -35,16 +35,21 @@ alias tfwl="terraform workspace list"
 alias tfws="terraform workspace select"
 alias tfs="terraform state"
 alias tfv="terraform validate"
+alias tfiu="terraform init -upgrade"
 alias tfip="tfi && tfp"
 
-## AWS alias
-AWS_PROFILE_DEV=$(aws configure list-profiles | grep "dev" | head -1 )
-test $AWS_PROFILE_DEV && export AWS_DEFAULT_PROFILE=$AWS_PROFILE_DEV
+## TODO fix what's below
+
+# ## AWS alias
+export AWS_PROFILE=$(aws configure list-profiles | grep "dev" | head -1)
+export AWS_DEFAULT_PROFILE=$AWS_PROFILE
 
 for profile in $(aws configure list-profiles); do
-  alias aws-$profile="aws --profile $profile"
-  alias aws-set-$profile="export AWS_DEFAULT_PROFILE=$profile"
-  alias e1s-$profile="e1s --profile=$profile"
+  if [ "$profile" != "mfa" ]; then
+  alias awsprofile-$profile="aws --profile $profile"
+  alias awsset-$profile="export AWS_DEFAULT_PROFILE=$profile"
+  alias e1sprofile-$profile="e1s --profile=$profile"
+  fi
 done
 
 ## OpenVPN

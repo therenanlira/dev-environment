@@ -1,29 +1,38 @@
-## Homebrew settings
-if [ $(uname -s) == "Darwin" ]; then
-  BREWDIR="/opt/homebrew/bin/brew"
-elif [ $(uname -s) == "Linux" ]; then
-  BREWDIR="/home/linuxbrew/.linuxbrew/bin/brew"
-fi
+## Basic aliases
+alias ll="ls -alF"
 
+## Homebrew settings
+test $(uname -s) = "Darwin" && export BREWDIR="/opt/homebrew/bin/brew"
+test $(uname -s) = "Linux" && export BREWDIR="/home/linuxbrew/.linuxbrew/bin/brew"
 test -x $BREWDIR && eval "$($BREWDIR shellenv)"
+
 export HOMEBREW_EDITOR=vim
 
 ## Kubernetes cheats
-export PATH="$PATH:${HOME}/.local/bin:${HOME}/.krew/bin"
+test -f $HOME/.krew/bin/kubectl-krew && export PATH="$PATH:${HOME}/.local/bin:${HOME}/.krew/bin"
 test -f $HOME/.kube/config && test -f $HOME/.kube/azure/config && export KUBECONFIG=$HOME/.kube/config:$HOME/.kube/azure/config
+
 alias k=kubectl kx=kubectx kn=kubens
 alias kunset="kubectl config unset current-context; kubectl config unset current-context &>/dev/null"
-complete -o default -F __start_kubectl k
-source <(kubectl completion bash)
+
+test $SHELL = "/bin/bash" && test $(uname -s) = "Darwin" \
+&& brew_etc="$(brew --prefix)/etc" \
+&& [[ -r "${brew_etc}/profile.d/bash_completion.sh" ]] && source "${brew_etc}/profile.d/bash_completion.sh"
+
+test $SHELL = "/bin/bash" && source <(kubectl completion bash)
+test $SHELL = "/bin/bash" && complete -o default -F __start_kubectl k
+
+test $SHELL = "/bin/zsh" && source <(kubectl completion zsh)
+test $SHELL = "/bin/zsh" && autoload -Uz compinit && compinit
 
 ## Python
 alias py=python3
-if [ -f "/usr/local/bin/virtualenvwrapper.sh" ]; then
-  export WORKON_HOME=~/.virtualenvs
-  export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
-  export VIRTUALENVWRAPPER_VIRRTUALENV=/usr/local/bin/virtualenv
-  source /usr/local/bin/virtualenvwrapper.sh
-fi
+
+test -f /usr/local/bin/virtualenvwrapper.sh \
+&& export WORKON_HOME=~/.virtualenvs \
+&& export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3 \
+&& export VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/bin/virtualenv \
+&& source /usr/local/bin/virtualenvwrapper.sh
 
 ## Terraform alias
 alias tf="terraform"
@@ -37,8 +46,6 @@ alias tfs="terraform state"
 alias tfv="terraform validate"
 alias tfiu="terraform init -upgrade"
 alias tfip="tfi && tfp"
-
-## TODO fix what's below
 
 # ## AWS alias
 export AWS_PROFILE=$(aws configure list-profiles | grep "dev" | head -1)
@@ -57,7 +64,13 @@ alias ovpn-c="openvpn3 session-start --config ~/.client.ovpn"
 alias ovpn-d="openvpn3 session-manage --config ~/.client.ovpn --disconnect"
 
 ### Functions
-function findhere() { find . -name "*$1*"; }
+findhere() {
+  if [[ "$SHELL" == "/bin/bash" ]]; then
+    find . -name "*$1*"
+  elif [[ "$SHELL" == "/bin/zsh" ]]; then
+    echo **"$1"**
+  fi
+}
 function opensslcert() { openssl s_client -showcerts -connect $1:443; }
 function curlcert() { curl $1 -vI --stderr -; }
 function kexec() { kubectl exec -it $1 -- sh -c "clear; (bash || ash || sh)"; }
@@ -67,8 +80,8 @@ function extractca() { openssl pkcs12 -in $1 -cacerts -nokeys -chain -out "ca.cr
 
 ## AWS MFA
 function aws-mfa() {
-local SOURCE_PROFILE=$(aws_profile)
-local MFA_PROFILE="mfa"
+local SOURCE_PROFILE=$AWS_PROFILE
+local MFA_PROFILE=$AWS_PROFILE
 
 local MFA_DEVICE_ARN=$(aws configure get mfa_device_arn --profile $SOURCE_PROFILE)
 if [ -z "$MFA_DEVICE_ARN" ]; then
@@ -108,8 +121,4 @@ aws configure set aws_secret_access_key "$SECRET_KEY" --profile "$MFA_PROFILE"
 aws configure set aws_session_token "$SESSION_TOKEN" --profile "$MFA_PROFILE"
 
 echo "Temporary credentials have been set for the '$MFA_PROFILE' profile. They will expire on $EXPIRATION."
-
-# Export the AWS_PROFILE environment variable to use the MFA profile
-export AWS_PROFILE="$MFA_PROFILE"
-echo "AWS_PROFILE environment variable set to '$MFA_PROFILE'." 
 }

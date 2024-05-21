@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ## Variables
 OS=$(uname -s)
 DISTRO=$(test -f /etc/os-release && grep "ID_LIKE" /etc/os-release | awk -F= '{ print $2 }')
@@ -14,16 +16,11 @@ if [ $OS != "Linux" ] && [ $OS != "Darwin" ]; then
     exit 1
 fi
 
-## Set Bash as default shell
+## Identify the shell
+test $OS = "Linux" && test $SHELL = "/bin/bash" && BASHFILE=$HOME/.bashrc
+test $OS = "Darwin" && test $SHELL = "/bin/bash" && BASHFILE=$HOME/.bash_profile
 
-## Verify if Bash is the default shell and if it is not, change it
-test $SHELL == "/bin/bash" || sudo chsh -s /bin/bash
-
-if [ $OS == "Linux" ]; then
-    BASHFILE=$HOME/.bashrc
-elif [ $OS == "Darwin" ]; then
-    BASHFILE=$HOME/.bash_profile
-fi
+test $SHELL = "/bin/zsh" && BASHFILE=$HOME/.zshrc
 
 ## Update and install basic packages
 if [ $OS == "Linux" ]; then
@@ -58,25 +55,26 @@ git config --global user.name $name
 git config --global user.email $email 
 
 ## Install and configure bash-it and themes
-git clone --depth=1 https://github.com/Bash-it/bash-it.git ~/.bash_it \
-&& printf 'y' | ~/.bash_it/install.sh
-git clone --depth=1 https://github.com/therenanlira/bash-it-themes.git ~/.bash-it-themes \
-&& printf 'y' | ~/.bash-it-themes/install.sh
-sed -i "" "s/export BASH_IT_THEME=.*/\export BASH_IT_THEME=new-sushu/g" $BASHFILE
-source $BASHFILE
+if [ $SHELL == "/bin/bash" ]; then
+    git clone --depth=1 https://github.com/Bash-it/bash-it.git ~/.bash_it \
+    && printf 'y' | ~/.bash_it/install.sh
+    git clone --depth=1 https://github.com/therenanlira/bash-it-themes.git ~/.bash-it-themes \
+    && printf 'y' | ~/.bash-it-themes/install.sh
+    sed -i "" "s/export BASH_IT_THEME=.*/\export BASH_IT_THEME=new-sushu/g" $BASHFILE
+    source $BASHFILE
+elif [ $SHELL == "/bin/zsh" ]; then
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+fi
 
 ## Install programming languages
 $INSTALL nodejs npm python3 pipx golang
 
 ## Install X Code
-test $OS == "Darwin" && xcode-select --install
+test $OS = "Darwin" && xcode-select --install
 
 ## Install TLDR
-if [ $OS == "Linux" ]; then
-    sudo npm install -g tldr
-elif [ $OS == "Darwin" ]; then
-    npm install -g tldr
-fi
+test $OS = "Linux" && sudo npm install -g tldr
+test $OS = "Darwin" && npm install -g tldr
 
 ## Install FZF
 if [ $OS == "Linux" ]; then
@@ -88,7 +86,8 @@ elif [ $OS == "Darwin" ]; then
 fi
 
 source $BASHFILE
-eval "$(fzf --bash)"
+test $SHELL = "/bin/bash" && eval "$(fzf --bash)"
+test $SHELL = "/bin/zsh" && source <(fzf --zsh)
 
 ## Install Terraform
 $INSTALL terraform
@@ -106,11 +105,8 @@ elif [ $OS == "Darwin" ]; then
 fi
 
 ## Install Azure CLI
-if [ $OS == "Linux" ]; then
-    curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-elif [ $OS == "Darwin" ]; then
-    $INSTALL azure-cli
-fi
+test $OS = "Linux" && curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+test $OS = "Darwin" && $INSTALL azure-cli
 
 ## Install Google Cloud CLI
 if [ $OS == "Linux" ]; then
@@ -124,8 +120,16 @@ fi
 
 ## Install Kubernetes tools
 if [ $OS == "Linux" ]; then
+    $INSTALL apt-transport-https ca-certificates curl gnupg
+    curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    sudo chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg # allow unprivileged APT programs to read this keyring
+    sudo apt update
     $INSTALL kubectl
-    source <(kubectl completion bash)
+
+    $INSTALL bash-completion
+    test $SHELL = "/bin/bash" && $INSTALL bash-completion
+    test $SHELL = "/bin/bash" && source <(kubectl completion bash)
+    test $SHELL = "/bin/zsh" && source <(kubectl completion zsh)
 
     sudo git clone https://github.com/ahmetb/kubectx /opt/kubectx
     sudo ln -s /opt/kubectx/kubectx /usr/local/bin/kubectx
@@ -141,10 +145,12 @@ if [ $OS == "Linux" ]; then
     curl -sS https://webinstall.dev/k9s | bash
 elif [ $OS == "Darwin" ]; then
     $INSTALL kubectl
-    $INSTALL bash-completion
-    kubectl completion bash > $(brew --prefix)/etc/bash_completion.d/kubectl
+    test $SHELL = "/bin/bash" && $INSTALL bash-completion@2
+    test $SHELL = "/bin/bash" && kubectl completion bash > $(brew --prefix)/etc/bash_completion.d/kubectl
+    test $SHELL = "/bin/zsh" && source <(kubectl completion zsh) && autoload -Uz compinit && compinit
 
-    $INSTALL kubectl kubectx
+    $INSTALL kubectx # and kubens
+    
     $INSTALL kubent
 
     $INSTALL helm

@@ -15,6 +15,7 @@ test -f $HOME/.kube/config && test -f $HOME/.kube/azure/config && export KUBECON
 alias k=kubectl kx=kubectx kn=kubens
 alias kunset="kubectl config unset current-context; kubectl config unset current-context &>/dev/null"
 
+## Shell configuration
 test $SHELL = "/bin/bash" && test $(uname -s) = "Darwin" \
 && brew_etc="$(brew --prefix)/etc" \
 && [[ -r "${brew_etc}/profile.d/bash_completion.sh" ]] && source "${brew_etc}/profile.d/bash_completion.sh"
@@ -24,6 +25,8 @@ test $SHELL = "/bin/bash" && complete -o default -F __start_kubectl k
 
 test $SHELL = "/bin/zsh" && source <(kubectl completion zsh)
 test $SHELL = "/bin/zsh" && autoload -Uz compinit && compinit
+
+test $SHELL = "/bin/zsh" && ZSH_THEME_TF_PROMPT_PREFIX="[terraform:" && RPROMPT=$(echo $(aws_prompt_info) $(tf_prompt_info))
 
 ## Python
 alias py=python3

@@ -51,13 +51,12 @@ alias tfiu="terraform init -upgrade"
 alias tfip="tfi && tfp"
 
 # ## AWS alias
-export AWS_PROFILE=$(aws configure list-profiles | grep "dev" | head -1)
-export AWS_DEFAULT_PROFILE=$AWS_PROFILE
+export AWS_PROFILE=$(aws configure list-profiles | grep "mfa" | head -1)
 
 for profile in $(aws configure list-profiles); do
   if [ "$profile" != "mfa" ]; then
   alias awsprofile-$profile="aws --profile $profile"
-  alias awsset-$profile="export AWS_DEFAULT_PROFILE=$profile"
+  alias awsset-$profile="export AWS_PROFILE=$profile"
   alias e1sprofile-$profile="e1s --profile=$profile"
   fi
 done
@@ -84,7 +83,7 @@ function extractca() { openssl pkcs12 -in $1 -cacerts -nokeys -chain -out "ca.cr
 ## AWS MFA
 function aws-mfa() {
 local SOURCE_PROFILE=$AWS_PROFILE
-local MFA_PROFILE="mfa"
+local MFA_PROFILE="$AWS_PROFILE-mfa"
 
 local MFA_DEVICE_ARN=$(aws configure get mfa_device_arn --profile $SOURCE_PROFILE)
 if [ -z "$MFA_DEVICE_ARN" ]; then
